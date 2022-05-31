@@ -1,0 +1,16 @@
+version: 2.1
+
+jobs:
+  print_welcome_message:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: "Say welcome"
+          command: "echo Welcome $PROJECT_OWNER to your first CI pipeline"
+
+workflows:
+  message-workflow:
+    jobs:
+      - print_welcome_message
