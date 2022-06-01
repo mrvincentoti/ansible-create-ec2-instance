@@ -14,61 +14,61 @@ jobs:
               --stack-name server-stack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
 
-  create_inventory:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - run: echo "[all]" > ~/inventory
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - inventory
+  # create_inventory:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     - run: echo "[all]" > ~/inventory
+  #     - persist_to_workspace:
+  #         root: ~/
+  #         paths:
+  #           - inventory
 
-  update_inventory_with_ec2_ip:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Update inventory file
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=Gnosis" --output text >> ~/inventory
-      - run:
-          name: Print inventory
-          command: |
-            cat ~/inventory
-  configure_infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["c2:a2:42:30:01:be:48:b6:cf:8c:f8:36:de:88:b0:ee"]
-      - run:
-          name: Install Ansible
-          command: |
-            apk add --update ansible
-      - run:
-          name: Configure server
-          command: |
-            ansible-playbook -i ~/inventory playbook.yml
+  # update_inventory_with_ec2_ip:
+  #   docker:
+  #     - image: amazon/aws-cli
+  #   steps:
+  #     - checkout
+  #     - run:
+  #         name: Install tar utility
+  #         command: |
+  #           yum install -y tar gzip
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Update inventory file
+  #         command: |
+  #           aws ec2 describe-instances \
+  #             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+  #             --filters "Name=tag:Project,Values=Gnosis" --output text >> ~/inventory
+  #     - run:
+  #         name: Print inventory
+  #         command: |
+  #           cat ~/inventory
+  # configure_infrastructure:
+  # docker:
+  #   - image: python:3.7-alpine3.11
+  # steps:
+  #   - checkout
+  #   - add_ssh_keys:
+  #       fingerprints: ["c2:a2:42:30:01:be:48:b6:cf:8c:f8:36:de:88:b0:ee"]
+  #   - run:
+  #       name: Install Ansible
+  #       command: |
+  #         apk add --update ansible
+  #   - run:
+  #       name: Configure server
+  #       command: |
+  #         ansible-playbook -i ~/inventory playbook.yml
 workflows:
   create-and-configure-instance:
     jobs:
-      - create_inventory
+      # - create_inventory
       - create_infrastructure
-      - update_inventory_with_ec2_ip:
-          requires:
-            - create_inventory
-            - create_infrastructure
-      - configure_infrastructure:
-          requires:
-            - update_inventory_with_ec2_ip
+      # - update_inventory_with_ec2_ip:
+      #     requires:
+      #       - create_inventory
+      #       - create_infrastructure
+      # - configure_infrastructure:
+      #     requires:
+      #       - update_inventory_with_ec2_ip
