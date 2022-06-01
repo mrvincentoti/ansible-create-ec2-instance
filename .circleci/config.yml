@@ -16,7 +16,7 @@ jobs:
 
   update_inventory_with_ec2_ip:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - run:
           name: Update inventory file
@@ -25,7 +25,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=Gnosis" --output text >> inventory
 workflows:
-  message-workflow:
+  create-and-configure-instance:
     jobs:
       - create_infrastructure
       - update_inventory_with_ec2_ip:
