@@ -24,6 +24,21 @@ jobs:
             echo "[all]" >> inventory && aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=Gnosis" --output text >> inventory
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_key:
+          fingerprints: ["c2:a2:42:30:01:be:48:b6:cf:8c:f8:36:de:88:b0:ee"]
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory playbook.yml
 workflows:
   create-and-configure-instance:
     jobs:
@@ -31,3 +46,6 @@ workflows:
       - update_inventory_with_ec2_ip:
           requires:
             - create_infrastructure
+      - configure_infrastructure:
+          requires:
+            - update_inventory_with_ec2_ip
