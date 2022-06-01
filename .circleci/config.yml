@@ -13,13 +13,21 @@ jobs:
               --template-file server-stack.yml \
               --stack-name server-stack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
+
+  update_inventory_with_ec2_ip:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
       - run:
-          name: Create inventory file
+          name: Update inventory file
           command: |
-            echo "[all]" > inventory && aws ec2 describe-instances \
-              --profile gnosis --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            echo "[all]" >> inventory && aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=Gnosis" --output text >> inventory
 workflows:
   message-workflow:
     jobs:
       - create_infrastructure
+      - update_inventory_with_ec2_ip:
+          requires:
+            - create_infrastructure
