@@ -18,11 +18,11 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - run: echo "[all]" > ~/inventory
+      - run: echo "[all]" > ~/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory
+            - inventory.txt
 
   update_inventory_with_ec2_ip:
     docker:
@@ -40,7 +40,7 @@ jobs:
           command: |
             echo aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=Gnosis" --output text >> ~/inventory
+              --filters "Name=tag:Project,Values=Gnosis" --output text >> ~/inventory.txt
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
