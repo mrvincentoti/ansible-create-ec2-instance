@@ -1,14 +1,6 @@
 version: 2.1
 
 jobs:
-  print_welcome_message:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run:
-          name: "Say welcome"
-          command: "echo Welcome $PROJECT_OWNER to your first CI pipeline"
   create_infrastructure:
     docker:
       - image: amazon/aws-cli
@@ -21,8 +13,13 @@ jobs:
               --template-file server-stack.yml \
               --stack-name server-stack-${CIRCLE_WORKFLOW_ID:0:5} \
               --region us-east-1
+      - run:
+          name: Create inventory file
+          command: |
+            echo "[all]" > inventory && aws ec2 describe-instances \
+              --profile gnosis --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Project,Values=Gnosis" --output text >> inventory
 workflows:
   message-workflow:
     jobs:
-      - print_welcome_message
       - create_infrastructure
