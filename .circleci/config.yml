@@ -61,17 +61,18 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      run: apt add --update curl
-      run:
-        name: Smoke test
-        command: |
-          URL="https://blog.udacity.com/"
-          if curl -s --head ${URL}
-          then
-            return 0
-          else
-            return 1
-          fi
+      - run: apk add --update curl
+      - run:
+          name: Smoke test
+          command: |
+            URL="https://blog.udacity.com/"
+
+            if curl -s --head ${URL}
+            then
+              return 0
+            else
+              return 1
+            fi
 
 workflows:
   create-and-configure-instance:
