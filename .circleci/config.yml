@@ -1,8 +1,6 @@
 version: 2.1
 commands:
   destroy_environment:
-    docker:
-      - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environment on failure
@@ -70,7 +68,7 @@ jobs:
             ansible-playbook -i ~/inventory playbook.yml
   smoke_test:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli
     steps:
       - run: apk add --update curl
       - run:
