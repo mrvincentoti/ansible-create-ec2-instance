@@ -1,4 +1,12 @@
 version: 2.1
+commands:
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 
 jobs:
   create_infrastructure:
@@ -65,7 +73,7 @@ jobs:
       - run:
           name: Smoke test
           command: |
-            URL="https://blog.udacity1.com/"
+            URL="https://blog.udacity2.com/"
 
             if curl -s --head ${URL}
             then
@@ -73,6 +81,8 @@ jobs:
             else
               return 1
             fi
+      - destroy_environment
+        when: on_fail
 
 workflows:
   create-and-configure-instance:
@@ -89,3 +99,4 @@ workflows:
       - smoke_test:
           requires:
             - configure_infrastructure
+      - destroy_environment
