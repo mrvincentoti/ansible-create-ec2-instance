@@ -7,7 +7,7 @@ Resources:
     Properties:
       SecurityGroups:
         - !Ref InstanceSecurityGroup
-      KeyName: puppet_key
+      KeyName: webstack-key
       ImageId: "ami-0c4f7023847b90238"
       InstanceType: t3.micro
       Tags:
